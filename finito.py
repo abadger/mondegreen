@@ -2,7 +2,7 @@
 
 import os
 import sys
-import asyncio
+#import asyncio
 import argparse
 
 from configobj import ConfigObj
@@ -40,15 +40,15 @@ webhook=url
 posting_channel=string
 '''.splitlines()
 
-class Poster(IDoneThis):
-    @asyncio.coroutine
-    def async_post(self, msg):
-        self.post(msg, self.information)
+#class Poster(IDoneThis):
+#    @asyncio.coroutine
+#    def async_post(self, msg):
+#        self.post(msg, self.information)
 
-class Terminal:
-    @asyncio.coroutine
-    def read_input(self):
-        yield from raw_input
+#class Terminal:
+#    @asyncio.coroutine
+#    def read_input(self):
+#        yield from raw_input
 
 def parse_args(args=None):
 
