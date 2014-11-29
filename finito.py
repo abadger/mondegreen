@@ -112,16 +112,14 @@ def main(args):
 
     config.merge(cli_to_config(args))
 
-    idt = Poster(config['idonethis']['auth_token'],
+    idt = IDoneThis(config['idonethis']['auth_token'],
             config['idonethis']['posting_team'])
     idt.post(args.message)
     sys.exit(0)
 
-    loop = asyncio
     # get message from user
     # when message received, post message to idt
     # wait for new message from user
-    idt.post(msg)
 
 if __name__ == '__main__':
     main(sys.argv)
