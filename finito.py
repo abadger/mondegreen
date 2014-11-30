@@ -101,7 +101,6 @@ def main(args):
     args.message = ' '.join(args.message)
     config = confmgr.cfg
 
-    sys.exit(0)
     idt = IDoneThis(config['idonethis']['auth_token'],
             config['idonethis']['posting_team'])
     idt.post(args.message)
