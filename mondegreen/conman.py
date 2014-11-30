@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2014 Toshio Kuratomi
-#
 # Special License: LGPLv3+
 #
 # This file is part of Mondegreen but it carries a different license than the
@@ -24,9 +23,6 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this file.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Authors:
-#   Toshio Kuratomi <toshio@fedoraproject.org>
-
 '''
 ------------------
 Configuration code

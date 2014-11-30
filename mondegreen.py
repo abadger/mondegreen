@@ -1,20 +1,44 @@
 #!/usr/bin/python3 -tt
+# -*- coding: utf-8 -*-
 #
-# Author: Toshio Kuratomi <toshio@fedoraproject.org>
-# Copyright: November, 2014
+# Copyright (c) 2014 Toshio Kuratomi
 # License: GPLv3+
 #
+# This file is part of Mondegreen.
+#
+# Mondegreen is free software: you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This file is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this file.  If not, see <http://www.gnu.org/licenses/>.
+#
+'''
+----------
+Mondegreen
+----------
+
+Mondegreen is a server application that reads content from multiple sources
+and republishes it on another one.  It can be used to create a single source
+of information for users.
+
+.. codeauthor:: Toshio Kuratomi <toshio@fedoraproject.org>
+.. sectionauthor:: Toshio Kuratomi <toshio@fedoraproject.org>
+
+.. versionadded:: 0.1
+'''
 
 import sys
 import asyncio
 
 from mondegreen.idonethis import IDoneThis
 
-
-class Poster(IDoneThis):
-    @asyncio.coroutine
-    def async_post(self, msg):
-        self.post(msg, self.information)
 
 class Terminal:
     @asyncio.coroutine
