@@ -35,9 +35,14 @@ An adapter to talk to idonethis.
 .. versionadded:: 0.1
 '''
 
-import requests
+import asyncio
+
+import aiohttp
 
 IDONETHISENDPOINT = 'https://idonethis.com/api/v0.1/dones/'
+
+class IDoneThisPostingError(Exception):
+    pass
 
 class IDoneThis:
     def __init__(self, auth_token, default_team=None, filters=None):
@@ -66,19 +71,21 @@ class IDoneThis:
     def search(self, refresh=False):
         return data
 
+    @asyncio.coroutine
     def post(self, msg, team=None):
         team = team if team else self.default_team
 
         headers = self.auth_header
         data = dict(team=team, raw_text=msg)
-        reply = requests.post(self.base_url, headers=headers, data=data)
+        reply = yield from aiohttp.request('post', self.base_url,
+                headers=headers, data=data)
 
-        if reply.status_code < 200 or reply.status_code > 300:
+        if reply.status < 200 or reply.status > 300:
             try:
-                data = reply.json()
+                data = yield from reply.json()
             except Exception as e:
                 raise e # Temporary - figure out what could happen here
-                response_msg = data['text']
+                response_msg = reply.text
 
             if 'errors' in data:
                 response_msg = repr(data['errors'])
@@ -88,7 +95,7 @@ class IDoneThis:
                 response_msg = data['text']
 
             raise IDoneThisPostingError('IDoneThis server code: {0},'
-                ' reply:{1}'.format(reply.status_code, response_msg))
+                ' reply:{1}'.format(reply.status, response_msg))
 
         return data
 

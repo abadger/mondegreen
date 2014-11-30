@@ -38,6 +38,7 @@ __version__ = '0.1'
 
 import os
 import sys
+import asyncio
 import argparse
 
 from configobj import ConfigObj
@@ -89,16 +90,6 @@ webhook=url
 posting_channel=string|slack_posting_channel
 '''.splitlines()
 
-#class Poster(IDoneThis):
-#    @asyncio.coroutine
-#    def async_post(self, msg):
-#        self.post(msg, self.information)
-
-#class Terminal:
-#    @asyncio.coroutine
-#    def read_input(self):
-#        yield from raw_input
-
 def arg_parser():
 
     parser = argparse.ArgumentParser(description='Post to idonethis')
@@ -131,7 +122,8 @@ def main(args):
 
     idt = IDoneThis(config['idonethis']['auth_token'],
             config['idonethis']['posting_team'])
-    idt.post(args.message)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(idt.post(args.message))
 
     sys.exit(0)
 
