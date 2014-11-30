@@ -1,4 +1,9 @@
 #!/usr/bin/python3 -tt
+#
+# Author: Toshio Kuratomi <toshio@fedoraproject.org>
+# Copyright: November, 2014
+# License: GPLv3+
+#
 
 import os
 import sys
@@ -7,6 +12,7 @@ import argparse
 
 from configobj import ConfigObj
 
+from mondegreen.conman import ConfigManager
 from mondegreen.idonethis import IDoneThis
 
 __version__ = '0.1'
@@ -23,21 +29,36 @@ def idt_read_filter_check(value):
 
     keys = frozenset(value.keys())
     if not keys.issubset(IDONETHIS_FILTERS):
-        raise ValidateError('invalid filter types specified: %s'.format(
+        raise ValidateError('invalid filter types specified: {0}'.format(
             keys.difference(IDONETHIS_FILTERS)))
 
     return value
 
-validator = Validator({'idt_read_filter':'idt_read_filter_check'})
-configspec = '''
+from urllib.parse import urlparse
+def url_filter_check(value, schemes=('http', 'https'), non_local=True):
+    expanded = urlparse(value)
+
+    if expanded.scheme not in schemes:
+        raise ValidateError('url not one of the allowed schemes: {0}'.format(
+            schemes))
+
+    if non_local and not expanded.netloc:
+        raise ValidateError('url must specify a remote server')
+
+    return value
+
+validator = Validator({'idt_read_filter': idt_read_filter_check,
+    'url': url_filter_check})
+
+combinedspec = '''
 [idonethis]
 auth_token=string
-posting_team=string
-read_filter=idonethis_read_filter
+posting_team=string|idt_posting_team
+read_filter=idt_read_filter
 
 [slack]
 webhook=url
-posting_channel=string
+posting_channel=string|slack_posting_channel
 '''.splitlines()
 
 #class Poster(IDoneThis):
@@ -50,7 +71,7 @@ posting_channel=string
 #    def read_input(self):
 #        yield from raw_input
 
-def parse_args(args=None):
+def arg_parser():
 
     parser = argparse.ArgumentParser(description='Post to idonethis')
     parser.add_argument('--config-file', '-f', dest='config', action='append',
@@ -62,59 +83,29 @@ def parse_args(args=None):
             dest='slack_posting_channel')
     parser.add_argument('message', nargs='+')
 
-    if args:
-        args = parser.parse_args(args)
-    else:
-        args = parser.parse_args()
+    return parser
 
-    args.message = ' '.join(args.message)
-    return args
-
-def read_config(config_files):
-    if isinstance(config_files, str):
-        config_files = (config_files,)
-    cfg = ConfigObj(configspec=configspec)
-    for cfg_file in config_files:
-        cfg_from_file = ConfigObj(cfg_file, configspec=configspec)
-        cfg_from_file.validate(validator)
-        cfg.merge(cfg_from_file)
-    return cfg
-
-def cli_to_config(args):
-    cfg = ConfigObj(configspec=configspec)
-
-    cfg['idonethis'] = {}
-    if args.idonethis_posting_team:
-        cfg['idonethis']['posting_team'] = args.idonethis_posting_team
-
-    cfg['slack'] = {}
-    if args.slack_posting_channel:
-        cfg['slack']['posting_channel'] = args.slack_posting_channel
-
-    cfg.validate(validator)
-    return cfg
 
 def main(args):
-    args = parse_args()
+    confmgr = ConfigManager(combinedspec, validator, arg_parser())
 
-    config = ConfigObj(configspec=configspec)
     for default_cfg_file in ('/etc/mondegreen.ini',
             os.path.expanduser('~/.mondegreen.ini')):
         try:
-            cfg = read_config(default_cfg_file)
-            config.merge(cfg)
+            confmgr.add_config(default_cfg_file)
         except OSError:
             # Okay if default files don't exist
             pass
-    if args.config:
-        cfg = read_config(args.config)
-        config.merge(cfg)
 
-    config.merge(cli_to_config(args))
+    args = confmgr.add_args()
+    args.message = ' '.join(args.message)
+    config = confmgr.cfg
 
+    sys.exit(0)
     idt = IDoneThis(config['idonethis']['auth_token'],
             config['idonethis']['posting_team'])
     idt.post(args.message)
+
     sys.exit(0)
 
     # get message from user
