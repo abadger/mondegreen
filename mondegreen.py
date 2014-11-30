@@ -5,8 +5,6 @@
 # License: GPLv3+
 #
 
-#!/usr/bin/python3 -tt
-
 import sys
 import asyncio
 
