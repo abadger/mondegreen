@@ -36,8 +36,10 @@ An adapter to talk to slack
 '''
 
 import json
+import asyncio
 from urllib.parse import urlencode
-import requests
+
+import aiohttp
 
 class SlackPostingError(Exception):
     pass
@@ -51,6 +53,7 @@ class Slack:
         self.channel = default_channel
 
 
+    @asyncio.coroutine
     def post(self, msg, icon=None, channel=None):
         channel = channel if channel else self.channel
         payload = dict(channel=channel, username=self.agent_name, text=msg)
@@ -58,7 +61,8 @@ class Slack:
             paylod['icon_emoji'] = icon
 
         data = dict(payload=json.dumps(payload))
-        reply = requests.post(self.auth_url, data=data)
-        if reply.text.strip() != 'ok':
+        reply = yield from aiohttp.request('post', self.auth_url, data=data)
+        data = yield from reply.text()
+        if data.strip() != 'ok':
             raise SlackPostingError('Slack server code: {0},'
                 ' reply:{1}'.format( reply.status_code, reply.text))
