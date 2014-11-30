@@ -40,11 +40,6 @@ import asyncio
 from mondegreen.idonethis import IDoneThis
 
 
-class Terminal:
-    @asyncio.coroutine
-    def read_input(self):
-        yieldr from raw_input
-
 def main(args):
     # Get configuration
     args = parse_args(args)
