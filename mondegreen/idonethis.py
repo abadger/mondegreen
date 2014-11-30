@@ -85,7 +85,7 @@ class IDoneThis:
                 data = yield from reply.json()
             except Exception as e:
                 raise e # Temporary - figure out what could happen here
-                response_msg = reply.text
+                response_msg = yield from reply.text()
 
             if 'errors' in data:
                 response_msg = repr(data['errors'])
