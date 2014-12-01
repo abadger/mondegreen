@@ -97,8 +97,8 @@ class BaseArgParser(ArgumentParser):
         self.add_argument('--config-file', '-f', dest='config', action='append',
                 default=list())
         self.add_argument('--version', action='version', version=__version__)
-        self.add_argument('--idonethis-posting-team',
-                dest='idonethis_posting_team')
+        self.add_argument('--idt-posting-team',
+                dest='idt_posting_team')
         self.add_argument('--slack-posting-channel',
                 dest='slack_posting_channel')
 
